@@ -70,7 +70,7 @@ module Pod
     def run
       @message_bank.welcome_message
 
-      platform = ios
+      platform = :ios
 
       case platform
         when :macos
