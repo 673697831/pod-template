@@ -75,13 +75,13 @@ module Pod
       ConfigureSwift.perform(configurator: self)
 
 #      replace_variables_in_files
-      clean_template_files
+#      clean_template_files
 #      rename_template_files
       add_pods_to_podfile
 #      customise_prefix
 #      rename_classes_folder
 #      ensure_carthage_compatibility
-      reinitialize_git_repo
+#      reinitialize_git_repo
       run_pod_install
 
 #      @message_bank.farewell_message
@@ -102,7 +102,7 @@ module Pod
       puts "\nRunning " + "pod install".magenta + " on your new library."
       puts ""
 
-      Dir.chdir("#{pod_name}}") do
+      Dir.chdir(@pod_name) do
         system "pod install"
       end
 
@@ -211,6 +211,7 @@ module Pod
 
     def podfile_path
       '#{pod_name}/Podfile'
+      return @pod_name + '/Podfile'
     end
 
     #----------------------------------------#
