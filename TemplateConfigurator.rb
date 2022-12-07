@@ -75,7 +75,7 @@ module Pod
       ConfigureSwift.perform(configurator: self)
 
 #      replace_variables_in_files
-#      clean_template_files
+      clean_template_files
 #      rename_template_files
       add_pods_to_podfile
 #      customise_prefix
@@ -111,7 +111,7 @@ module Pod
     end
 
     def clean_template_files
-      ["./**/.gitkeep", "configure", "_CONFIGURE.rb", "README.md", "LICENSE", "templates", "setup", "CODE_OF_CONDUCT.md"].each do |asset|
+      ["ConfigureSwift.rb", "CreateProject.sh", "MessageBank.rb", "ProjectManipulator.rb", "Rename.rb", "TemplateConfigurator.rb"].each do |asset|
         `rm -rf #{asset}`
       end
     end
