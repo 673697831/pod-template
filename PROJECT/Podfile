@@ -1,0 +1,17 @@
+# Uncomment the next line to define a global platform for your project
+# platform :ios, '9.0'
+
+target 'PROJECT' do
+  # Comment the next line if you don't want to use dynamic frameworks
+  # use_frameworks!
+  use_modular_headers!
+  
+#不要使用公有源，因为需要修改打包配置，请开通混淆平台接入混淆后的仓库，例如
+  # pod 'OverseaHttpClient', :subspecs => ['Public', 'Isolation', 'Resource', 'HTTPMonitor'], :git => 'git@code.inke.cn:gz/iOS/readom/pods/talebay-overseahttpclient-mixed.git'
+  # 如果不想开通混淆平台，请clone仓库后，修改httpclient.json的配置，跟目录执行make命令，把OverseaHttpClient.bundle拖进主工程，否则会出现缺少配置资源的错误
+  pod 'OverseaHttpClient', :subspecs => ['Public', 'Isolation', 'Resource', 'HTTPMonitor', 'DNS', 'ServerDomain', 'SocketProxy'], :git => 'git@code.inke.cn:gz/iOS/common/overseahttpclient.git'
+  
+  #开通混淆平台，把apm替换成混淆平台的仓库
+  pod 'APMSwift', :subspecs => ['Core', 'CrashBlock','Oversea', 'Debug', 'SLA'], :git => 'git@code.inke.cn:gz/iOS/common/apmswift.git'
+
+end
