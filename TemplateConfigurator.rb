@@ -102,7 +102,7 @@ module Pod
       puts "\nRunning " + "pod install".magenta + " on your new library."
       puts ""
 
-      Dir.chdir("PROJECT") do
+      Dir.chdir("{pod_name}}") do
         system "pod install"
       end
 
@@ -210,7 +210,7 @@ module Pod
     end
 
     def podfile_path
-      'PROJECT/Podfile'
+      '{pod_name}/Podfile'
     end
 
     #----------------------------------------#
