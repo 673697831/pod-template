@@ -118,8 +118,8 @@ RUBY
     end
 
     def rename_project_folder
-      if Dir.exist? "/PROJECT"
-        File.rename("/PROJECT", "/" + @configurator.pod_name)
+      if Dir.exist? "./PROJECT"
+        File.rename("./PROJECT", "./" + @configurator.pod_name)
       end
       
       if Dir.exist? project_folder + "/PROJECT"
