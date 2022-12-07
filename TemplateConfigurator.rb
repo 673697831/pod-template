@@ -176,9 +176,9 @@ module Pod
 
     def reinitialize_git_repo
       `rm -rf .git`
-      `cd #{pod_name}`
-      `git init`
-      `git add -A`
+#      `cd #{pod_name}`
+#      `git init`
+#      `git add -A`
     end
 
     def validate_user_details
