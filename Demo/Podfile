@@ -10,3 +10,87 @@ target 'Demo' do
   pod 'APMSwift', :subspecs => ['Core', 'CrashBlock','Oversea', 'Debug', 'SLA'], :git => 'git@code.inke.cn:gz/iOS/common/apmswift.git'
 
 end
+
+# 这里主要是混淆工具用到，真机构建成功后，在tool目录下执行sh confusion.sh就能看到混淆后结果
+post_install do |installer|
+      module_link_scrip(installer)
+end
+ 
+ 
+def update_xcconfig(path)
+    xcconfig = File.read(path)
+    re = /(\$\{PODS_CONFIGURATION_BUILD_DIR\}\/.*?\/)(.*?)(.modulemap)/
+    # -fmodule-map-file="${PODS_CONFIGURATION_BUILD_DIR}/SnapKit/SnapKit.modulemap
+#     newXcconfig = xcconfig.gsub(module_name, "module.modulemap")
+    newXcconfig = xcconfig.gsub(re) do
+      $1 + "module" + $3
+    end
+    File.open(path, "w") { |file|
+      file << newXcconfig
+    }
+end
+ 
+ 
+# 安装静态库，修改modulemap名称【xxx.module -> module.modulemap】
+def module_link_scrip(installer)
+  #1.修改pods里所有taget编译时的 shell script, 调整为【xxx.module -> module.modulemap】
+  module_map_path_map = Hash.new
+  umbrella_header_path_map = Hash.new
+ 
+ 
+  installer.pod_targets.each do |target|
+    module_map_path = target.module_map_path.relative_path_from(target.sandbox.root)
+    umbrella_header_path = target.umbrella_header_path.relative_path_from(target.sandbox.root)
+     
+    module_map_path_map[target.name] = module_map_path
+    umbrella_header_path_map[target.name] = umbrella_header_path
+  end
+   
+  installer.pods_project.targets.each do |target|
+    target.build_phases.each do |build_phase|
+      if "#{build_phase}" == "Copy generated compatibility header"
+        relative_module_map_path = module_map_path_map[target.name]
+        relative_umbrella_header_path = umbrella_header_path_map[target.name]
+ 
+ 
+        build_phase.shell_script = <<-SH.strip_heredoc
+          COMPATIBILITY_HEADER_PATH="${BUILT_PRODUCTS_DIR}/Swift Compatibility Header/${PRODUCT_MODULE_NAME}-Swift.h"
+          MODULE_MAP_PATH="${BUILT_PRODUCTS_DIR}/module.modulemap"
+ 
+ 
+          ditto "${DERIVED_SOURCES_DIR}/${PRODUCT_MODULE_NAME}-Swift.h" "${COMPATIBILITY_HEADER_PATH}"
+          ditto "${PODS_ROOT}/#{relative_module_map_path}" "${MODULE_MAP_PATH}"
+          ditto "${PODS_ROOT}/#{relative_umbrella_header_path}" "${BUILT_PRODUCTS_DIR}"
+          printf "\\n\\nmodule ${PRODUCT_MODULE_NAME}.Swift {\\n  header \\"${COMPATIBILITY_HEADER_PATH}\\"\\n  requires objc\\n}\\n" >> "${MODULE_MAP_PATH}"
+        SH
+      end
+    end
+
+    # Fix Xcode 14 bundle code signing issue
+    if target.respond_to?(:product_type) and target.product_type == "com.apple.product-type.bundle"
+      target.build_configurations.each do |config|
+          config.build_settings['CODE_SIGNING_ALLOWED'] = 'NO'
+      end
+    end
+  end
+     
+  #2.调整xxconfig,将OTHER_CFLAGS, OTHER_SWIFT_FLAGS中的xxx.module改为module.modulemap
+  installer.aggregate_targets.each do |agg_target|
+    module_map_files = agg_target.build_settings.module_map_files
+     
+    puts module_map_files
+    agg_target.xcconfigs.keys.each do |build_type|
+      xcconfig_file_path = agg_target.xcconfig_path(build_type)
+      update_xcconfig(xcconfig_file_path)
+    end
+  end
+   
+  #3.修改存pod_targets中存在依赖的情况修改xcconfig中关于module.map的名字【ps： Moya依赖Alamofire】
+  installer.pod_targets.each do |target|
+    target_release_config_path = target.xcconfig_path('Release')
+    update_xcconfig(target_release_config_path)
+     
+    target_debug_config_path = target.xcconfig_path('Debug')
+    update_xcconfig(target_debug_config_path)
+  end
+end
