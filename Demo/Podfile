@@ -1,0 +1,12 @@
+# Uncomment the next line to define a global platform for your project
+# platform :ios, '9.0'
+
+target 'Demo' do
+  # Comment the next line if you don't want to use dynamic frameworks
+  use_modular_headers!
+
+  # Pods for Demo
+  pod 'OverseaHttpClient', :subspecs => ['Public', 'Isolation', 'Resource', 'HTTPMonitor', 'DNS', 'ServerDomain'], :git => 'git@code.inke.cn:gz/iOS/common/overseahttpclient.git'
+  pod 'APMSwift', :subspecs => ['Core', 'CrashBlock','Oversea', 'Debug', 'SLA'], :git => 'git@code.inke.cn:gz/iOS/common/apmswift.git'
+
+end

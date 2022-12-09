@@ -34,3 +34,8 @@ Carthage/Build
 # `pod install` in .travis.yml
 #
 # Pods/
+#CocoaPods
+Pods
+!Podfile
+!Podfile.lock
+Podfile.lock
