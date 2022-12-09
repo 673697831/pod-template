@@ -105,6 +105,10 @@ module Pod
       Dir.chdir(@pod_name) do
         system "pod install"
       end
+      
+      Dir.chdir("Demo") do
+        system "pod install"
+      end
 
       #`git add Example/#{pod_name}.xcodeproj/project.pbxproj`
       #`git commit -m "Initial commit"`
